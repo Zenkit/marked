@@ -183,6 +183,18 @@ const inline = {
   code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
   br: /^( {2,}|\\)\n(?!\s*$)/,
   del: noopTest,
+  /*
+    By default marked does not support our custom latex syntax '$$x^2$$',
+    so in our code we override codespan tokenizer to capture latex syntax and
+    we override codespan renderer to convert text to latex html.
+    but when a latex syntax is preceded by any other character in the same line,
+    for example if something like 'text $$x^2$$', '``code `` $$x^2$$' or ' $$x^2$$' is given
+    the the text will be run through inline tokenizer and the whole token will be considered
+    as a normal text. we added the '$' character to this regex so any character before '$'
+    will be considered a text and the rest is passed for further tokenization, just like codespan.
+
+    Old regex: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/
+  */
   text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_$]|\b_|$)|[^ ](?= {2,}\n)))/,
   punctuation: /^([\spunctuation])/
 };
@@ -286,6 +298,18 @@ inline.gfm = merge({}, inline.normal, {
   url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
   _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
   del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
+  /*
+    By default marked does not support our custom latex syntax '$$x^2$$',
+    so in our code we override codespan tokenizer to capture latex syntax and
+    we override codespan renderer to convert text to latex html.
+    but when a latex syntax is preceded by any other character in the same line,
+    for example if something like 'text $$x^2$$', '``code `` $$x^2$$' or ' $$x^2$$' is given
+    the the text will be run through inline tokenizer and the whole token will be considered
+    as a normal text. we added the '$' character to this regex so any character before '$'
+    will be considered a text and the rest is passed for further tokenization, just like codespan.
+
+    Old regex: /^([`~]+|[^`~])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
+  */
   text: /^([`~]+|[^`~])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*~_$]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
 });
 
